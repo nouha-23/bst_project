@@ -1,19 +1,18 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -std=c99
-TARGET = test_bst
-SRC = test_insert.c bst_create.c bst_insert.c
-OBJ = $(SRC:.c=.o)
+all: bin/bst
 
-all: $(TARGET)
+bin/bst : build/bst.o
+	@echo "Linking.."
+	gcc -Iinclude -o bin/bst build/bst.o
 
-$(TARGET): $(OBJ)
-	$(CC) $(CFLAGS) -o $(TARGET) $(OBJ)
+build/bst.o : src/bst.c
+	@echo " compiling..."
+	gcc -Iinclude -o build/bst.o -c src/bst.c
 
-%.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+clean :
+	@echo " cleaning build dir..."
+	rm -f build/*
+	@echo " cleaning bin dir..."
+	rm -f bin/*
 
-clean:
-	rm -f $(OBJ) $(TARGET)
-
-run: $(TARGET)
-	./$(TARGET)
+run: bin/bst
+	./bin/bst

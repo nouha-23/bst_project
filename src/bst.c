@@ -1,5 +1,39 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "bst_node.h"
+
+// createNode implementation
+NodePtr createNode(int data) {
+    // Dynamic Memory Allocation using malloc
+    NodePtr newNode = (NodePtr)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed!\n");
+        return NULL;
+    }
+    newNode->data = data;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+
+// insert implementation
+NodePtr insert(NodePtr root, int data) {
+    // If tree is empty, return a new node
+    if (root == NULL) {
+        return createNode(data);
+    }
+
+    // Otherwise, recur down the tree
+    if (data < root->data) {
+        root->left = insert(root->left, data);
+    } else if (data > root->data) {
+        root->right = insert(root->right, data);
+    }
+    // if data matches root->data, we don't insert duplicate
+
+    // return the (unchanged) node pointer
+    return root;
+}
 
 // Helper function for verification (not part of the core API, but needed for testing)
 void simple_inorder(NodePtr root) {
