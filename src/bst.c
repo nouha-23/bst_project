@@ -110,10 +110,24 @@ int main() {
     root = insert(root, 40);
     root = insert(root, 60);
     root = insert(root, 80);
+    root = insert(root, 10);
+    root = insert(root, 5);
+    root = insert(root, 15);
+    root = insert(root, 16);
+
+    printf("%d (%d)\n", 16, search(&root, 16));
+    printf("%d (%d)\n", 15, search(&root, 15));
+    printf("%d (%d)\n", 5,  search(&root, 5));
+    printf("%d (%d)\n", 20, search(&root, 20));
+    printf("%d (%d)\n", 16,delNode(&root, 80));
+    
+    return 0;
+}
 
     printf("Tree structure (In-order verificaton): ");
     simple_inorder(root);
     printf("\n");
+    
 
     printf("Test Complete.\n");
     return 0;
