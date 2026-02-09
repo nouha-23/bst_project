@@ -43,6 +43,49 @@ void simple_inorder(NodePtr root) {
         simple_inorder(root->right);
     }
 }
+bool search(NodePtr root, int key) {
+    if (root == NULL) return false;
+    if (root->data == key) return true;
+
+    if (key > root->data)
+        return search(root->right, key);
+
+    return search(root->left, key);
+}
+
+NodePtr getSuccessor(NodePtr curr) {
+    curr = curr->right;
+    while (curr && curr->left)
+        curr = curr->left;
+    return curr;
+}
+
+NodePtr delNode(NodePtr root, int x) {
+    if (root == NULL) return root;
+
+    if (x < root->data)
+        root->left = delNode(root->left, x);
+    else if (x > root->data)
+        root->right = delNode(root->right, x);
+    else {
+        if (root->left == NULL) {
+            NodePtr temp = root->right;
+            free(root);
+            return temp;
+        }
+        if (root->right == NULL) {
+            NodePtr temp = root->left;
+            free(root);
+            return temp;
+        }
+
+        NodePtr succ = getSuccessor(root);
+        root->data = succ->data;
+        root->right = delNode(root->right, succ->data);
+    }
+    return root;
+}
+
 
 int main() {
     printf("--- Testing BST Insert Operations ---\n");
