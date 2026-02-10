@@ -2,11 +2,7 @@
 #include <stdlib.h>
 #include "bst_node.h"
 
-// Declare your functions (or include a header with them)
-void inorder(NodePtr root);
-void preorder(NodePtr root);
-void postorder(NodePtr root);
-void display(NodePtr root);
+
 
 int main() {
     NodePtr root = NULL;
@@ -68,4 +64,5 @@ int main() {
     }
     
     return 0;
+
 }
