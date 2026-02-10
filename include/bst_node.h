@@ -15,5 +15,10 @@ typedef Node* NodePtr;
 
 NodePtr createNode(int data);
 NodePtr insert(NodePtr root, int data);
+void inorder(NodePtr root);
+void preorder(NodePtr root);
+void postorder(NodePtr root);
+void display(NodePtr root);
+
 
 #endif // BST_NODE_H
