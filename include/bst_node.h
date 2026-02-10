@@ -1,7 +1,8 @@
+#ifndef BST_NODE_H
 #define BST_NODE_H
+
 #include <stdlib.h>
 #include <stdio.h>
-
 
 // Define the Node structure
 typedef struct Node {
@@ -11,11 +12,8 @@ typedef struct Node {
 } Node;
 
 typedef Node* NodePtr;
-NodePtr createNode(int data);
 
+NodePtr createNode(int data);
 NodePtr insert(NodePtr root, int data);
 
- updated.files
 #endif // BST_NODE_H
-=======
- main

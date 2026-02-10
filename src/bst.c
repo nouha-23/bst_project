@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "bst_node.h"
 
 // createNode implementation
@@ -43,6 +44,7 @@ void simple_inorder(NodePtr root) {
         simple_inorder(root->right);
     }
 }
+
 bool search(NodePtr root, int key) {
     if (root == NULL) return false;
     if (root->data == key) return true;
@@ -115,19 +117,17 @@ int main() {
     root = insert(root, 15);
     root = insert(root, 16);
 
-    printf("%d (%d)\n", 16, search(&root, 16));
-    printf("%d (%d)\n", 15, search(&root, 15));
-    printf("%d (%d)\n", 5,  search(&root, 5));
-    printf("%d (%d)\n", 20, search(&root, 20));
-    printf("%d (%d)\n", 16,delNode(&root, 80));
-    
-    return 0;
-}
+    printf("Search 16: %d (1)\n", search(root, 16));
+    printf("Search 15: %d (1)\n", search(root, 15));
+    printf("Search 5: %d (1)\n",  search(root, 5));
+    printf("Search 20: %d (1)\n", search(root, 20));
+
+    printf("Deleting 80...\n");
+    root = delNode(root, 80);
 
     printf("Tree structure (In-order verificaton): ");
     simple_inorder(root);
     printf("\n");
-    
 
     printf("Test Complete.\n");
     return 0;
