@@ -14,18 +14,18 @@ typedef struct Node {
 
 typedef Node* NodePtr;
 
-// Core BST Operations (bst.c)
+// Core BST Operations
 NodePtr createNode(int value);
 NodePtr insert(NodePtr root, int value);
 bool search(NodePtr root, int value);
 NodePtr deleteNode(NodePtr root, int value);
 
-// Traversal Operations (bst_traversal.c)
+// Traversal Operations
 void inorder(NodePtr root);
 void preorder(NodePtr root);
 void postorder(NodePtr root);
 
-// Display Operations (bst_display.c)
+// Display Operations
 void display(NodePtr root);
 void displayTree(NodePtr root, int space);
 

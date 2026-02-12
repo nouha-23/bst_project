@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -Iinclude -Wall -Wextra -g
 TARGET = bin/bst
-SRC = src/main.c src/bst.c src/bst_display.c src/bst_traversal.c
-OBJ = build/main.o build/bst.o build/bst_display.o build/bst_traversal.o
+SRC = src/main.c src/bst.c
+OBJ = build/main.o build/bst.o
 
 all: $(TARGET)
 
