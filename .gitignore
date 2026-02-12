@@ -8,6 +8,8 @@ bst_demo
 # Build and Bin folders
 build/
 bin/
+!build/.gitkeep
+!bin/.gitkeep
 
 # OS generated files
 .DS_Store
