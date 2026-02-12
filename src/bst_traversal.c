@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include "bst_node.h"
 
-// Inorder: Left -> Root -> Right (gives sorted output)
+// Inorder Traversal: Left -> Root -> Right
+// Used to retrieve data in sorted order
 void inorder(NodePtr root) {
     if (root != NULL) {
         inorder(root->left);
@@ -11,7 +12,8 @@ void inorder(NodePtr root) {
     }
 }
 
-// Preorder: Root -> Left -> Right
+// Preorder Traversal: Root -> Left -> Right
+// Used to create a copy of the tree or prefix notation
 void preorder(NodePtr root) {
     if (root != NULL) {
         printf("%d ", root->data);
@@ -20,7 +22,8 @@ void preorder(NodePtr root) {
     }
 }
 
-// Postorder: Left -> Right -> Root
+// Postorder Traversal: Left -> Right -> Root
+// Used to delete the tree (free memory) or postfix notation
 void postorder(NodePtr root) {
     if (root != NULL) {
         postorder(root->left);

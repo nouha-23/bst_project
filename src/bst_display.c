@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include "bst_node.h"
 
-// Display tree structure with indentation
+// Recursive helper to display the tree structure
+// 'space' tracks the indentation level
 void displayTree(NodePtr root, int space) {
     if (root == NULL) {
         return;
@@ -25,9 +26,13 @@ void displayTree(NodePtr root, int space) {
     displayTree(root->left, space);
 }
 
-// Wrapper function for easier use
+// Wrapper function to display the tree clearly
 void display(NodePtr root) {
     printf("\n=== Tree Structure ===\n");
-    displayTree(root, 0);
+    if (root == NULL) {
+        printf("(Empty Tree)\n");
+    } else {
+        displayTree(root, 0);
+    }
     printf("======================\n");
 }

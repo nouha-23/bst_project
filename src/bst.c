@@ -2,57 +2,52 @@
 #include <stdlib.h>
 #include "bst_node.h"
 
-// createNode implementation
-NodePtr createNode(int data) {
+// Create a new node with the given value
+NodePtr createNode(int value) {
     // Dynamic Memory Allocation using malloc
     NodePtr newNode = (NodePtr)malloc(sizeof(Node));
     if (newNode == NULL) {
         printf("Memory allocation failed!\n");
         return NULL;
     }
-    newNode->data = data;
+    newNode->data = value;
     newNode->left = NULL;
     newNode->right = NULL;
     return newNode;
 }
 
-// insert implementation
-NodePtr insert(NodePtr root, int data) {
+// Insert a value into the BST
+NodePtr insert(NodePtr root, int value) {
     // If tree is empty, return a new node
     if (root == NULL) {
-        return createNode(data);
+        return createNode(value);
     }
 
     // Otherwise, recur down the tree
-    if (data < root->data) {
-        root->left = insert(root->left, data);
-    } else if (data > root->data) {
-        root->right = insert(root->right, data);
+    if (value < root->data) {
+        root->left = insert(root->left, value);
+    } else if (value > root->data) {
+        root->right = insert(root->right, value);
     }
-    // if data matches root->data, we don't insert duplicate
+    // if value matches root->data, we don't insert duplicate
 
     // return the (unchanged) node pointer
     return root;
 }
 
-// Helper function for verification (not part of the core API, but needed for testing)
-void simple_inorder(NodePtr root) {
-    if (root != NULL) {
-        simple_inorder(root->left);
-        printf("%d ", root->data);
-        simple_inorder(root->right);
-    }
-}
-bool search(NodePtr root, int key) {
+
+// Search for a value in the BST
+bool search(NodePtr root, int value) {
     if (root == NULL) return false;
-    if (root->data == key) return true;
+    if (root->data == value) return true;
 
-    if (key > root->data)
-        return search(root->right, key);
+    if (value > root->data)
+        return search(root->right, value);
 
-    return search(root->left, key);
+    return search(root->left, value);
 }
 
+// Helper to find minimum value node in a subtree (successor)
 NodePtr getSuccessor(NodePtr curr) {
     curr = curr->right;
     while (curr && curr->left)
@@ -60,14 +55,16 @@ NodePtr getSuccessor(NodePtr curr) {
     return curr;
 }
 
-NodePtr delNode(NodePtr root, int x) {
+// Delete a node with the given value
+NodePtr deleteNode(NodePtr root, int value) {
     if (root == NULL) return root;
 
-    if (x < root->data)
-        root->left = delNode(root->left, x);
-    else if (x > root->data)
-        root->right = delNode(root->right, x);
+    if (value < root->data)
+        root->left = deleteNode(root->left, value);
+    else if (value > root->data)
+        root->right = deleteNode(root->right, value);
     else {
+        // Node with only one child or no child
         if (root->left == NULL) {
             NodePtr temp = root->right;
             free(root);
@@ -79,42 +76,13 @@ NodePtr delNode(NodePtr root, int x) {
             return temp;
         }
 
+        // Node with two children: Get the inorder successor (smallest in the right subtree)
         NodePtr succ = getSuccessor(root);
         root->data = succ->data;
-        root->right = delNode(root->right, succ->data);
+        root->right = deleteNode(root->right, succ->data);
     }
     return root;
 }
 
 
-int main() {
-    printf("--- Testing BST Insert Operations ---\n");
 
-    NodePtr root = NULL;
-
-    // Test 1: Insert into empty tree
-    printf("Inserting 50...\n");
-    root = insert(root, 50);
-
-    // Test 2: Insert smaller value (left)
-    printf("Inserting 30...\n");
-    root = insert(root, 30);
-
-    // Test 3: Insert larger value (right)
-    printf("Inserting 70...\n");
-    root = insert(root, 70);
-
-    // Test 4: Insert more values
-    printf("Inserting 20, 40, 60, 80...\n");
-    root = insert(root, 20);
-    root = insert(root, 40);
-    root = insert(root, 60);
-    root = insert(root, 80);
-
-    printf("Tree structure (In-order verificaton): ");
-    simple_inorder(root);
-    printf("\n");
-
-    printf("Test Complete.\n");
-    return 0;
-}
