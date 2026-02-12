@@ -1,26 +1,18 @@
-CC = gcc
-CFLAGS = -Iinclude -Wall -Wextra -g
-TARGET = bin/bst
-SRC = src/main.c src/bst.c
-OBJ = build/main.o build/bst.o
+all: bin/bst
 
-all: $(TARGET)
+bin/bst : build/bst.o
+	@echo "Linking.."
+	gcc -Iinclude -o bin/bst build/bst.o
 
-$(TARGET): $(OBJ)
-	@echo "Linking..."
-	$(CC) $(CFLAGS) -o $@ $(OBJ)
+build/bst.o : src/bst.c
+	@echo " compiling..."
+	gcc -Iinclude -o build/bst.o -c src/bst.c
 
-# Generic rule to compile .c to .o
-build/%.o: src/%.c
-	@echo "Compiling $<..."
-	$(CC) $(CFLAGS) -c $< -o $@
+clean :
+	@echo " cleaning build dir..."
+	rm -f build/*
+	@echo " cleaning bin dir..."
+	rm -f bin/*
 
-clean:
-	@echo "Cleaning build and bin directories..."
-	rm -f build/* bin/*
-
-run: $(TARGET)
-	@echo "Running BST..."
-	./$(TARGET)
-
-.PHONY: all clean run
+run: bin/bst
+	./bin/bst
