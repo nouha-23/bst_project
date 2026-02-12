@@ -1,8 +1,9 @@
 #ifndef BST_NODE_H
 #define BST_NODE_H
 
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
 
 // Define the Node structure
 typedef struct Node {
@@ -13,12 +14,19 @@ typedef struct Node {
 
 typedef Node* NodePtr;
 
-NodePtr createNode(int data);
-NodePtr insert(NodePtr root, int data);
+// Core BST Operations
+NodePtr createNode(int value);
+NodePtr insert(NodePtr root, int value);
+bool search(NodePtr root, int value);
+NodePtr deleteNode(NodePtr root, int value);
+
+// Traversal Operations
 void inorder(NodePtr root);
 void preorder(NodePtr root);
 void postorder(NodePtr root);
-void display(NodePtr root);
 
+// Display Operations
+void display(NodePtr root);
+void displayTree(NodePtr root, int space);
 
 #endif // BST_NODE_H

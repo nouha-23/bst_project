@@ -1,60 +1,53 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 #include "bst_node.h"
 
-// createNode implementation
-NodePtr createNode(int data) {
+// Create a new node with the given value
+NodePtr createNode(int value) {
     // Dynamic Memory Allocation using malloc
     NodePtr newNode = (NodePtr)malloc(sizeof(Node));
     if (newNode == NULL) {
         printf("Memory allocation failed!\n");
         return NULL;
     }
-    newNode->data = data;
+    newNode->data = value;
     newNode->left = NULL;
     newNode->right = NULL;
     return newNode;
 }
 
-// insert implementation
-NodePtr insert(NodePtr root, int data) {
+// Insert a value into the BST
+NodePtr insert(NodePtr root, int value) {
     // If tree is empty, return a new node
     if (root == NULL) {
-        return createNode(data);
+        return createNode(value);
     }
 
     // Otherwise, recur down the tree
-    if (data < root->data) {
-        root->left = insert(root->left, data);
-    } else if (data > root->data) {
-        root->right = insert(root->right, data);
+    if (value < root->data) {
+        root->left = insert(root->left, value);
+    } else if (value > root->data) {
+        root->right = insert(root->right, value);
     }
-    // if data matches root->data, we don't insert duplicate
+    // if value matches root->data, we don't insert duplicate
 
     // return the (unchanged) node pointer
     return root;
 }
 
-// Helper function for verification (not part of the core API, but needed for testing)
-void simple_inorder(NodePtr root) {
-    if (root != NULL) {
-        simple_inorder(root->left);
-        printf("%d ", root->data);
-        simple_inorder(root->right);
-    }
-}
 
-bool search(NodePtr root, int key) {
+// Search for a value in the BST
+bool search(NodePtr root, int value) {
     if (root == NULL) return false;
-    if (root->data == key) return true;
+    if (root->data == value) return true;
 
-    if (key > root->data)
-        return search(root->right, key);
+    if (value > root->data)
+        return search(root->right, value);
 
-    return search(root->left, key);
+    return search(root->left, value);
 }
 
+// Helper to find minimum value node in a subtree (successor)
 NodePtr getSuccessor(NodePtr curr) {
     curr = curr->right;
     while (curr && curr->left)
@@ -62,14 +55,16 @@ NodePtr getSuccessor(NodePtr curr) {
     return curr;
 }
 
-NodePtr delNode(NodePtr root, int x) {
+// Delete a node with the given value
+NodePtr deleteNode(NodePtr root, int value) {
     if (root == NULL) return root;
 
-    if (x < root->data)
-        root->left = delNode(root->left, x);
-    else if (x > root->data)
-        root->right = delNode(root->right, x);
+    if (value < root->data)
+        root->left = deleteNode(root->left, value);
+    else if (value > root->data)
+        root->right = deleteNode(root->right, value);
     else {
+        // Node with only one child or no child
         if (root->left == NULL) {
             NodePtr temp = root->right;
             free(root);
@@ -81,12 +76,20 @@ NodePtr delNode(NodePtr root, int x) {
             return temp;
         }
 
+        // Node with two children: Get the inorder successor (smallest in the right subtree)
         NodePtr succ = getSuccessor(root);
         root->data = succ->data;
-        root->right = delNode(root->right, succ->data);
+        root->right = deleteNode(root->right, succ->data);
     }
     return root;
 }
+
+
+
+
+
+// Inorder Traversal: Left -> Root -> Right
+// Used to retrieve data in sorted order
 void inorder(NodePtr root) {
     if (root != NULL) {
         inorder(root->left);
@@ -95,7 +98,8 @@ void inorder(NodePtr root) {
     }
 }
 
-// Preorder: Root -> Left -> Right
+// Preorder Traversal: Root -> Left -> Right
+// Used to create a copy of the tree or prefix notation
 void preorder(NodePtr root) {
     if (root != NULL) {
         printf("%d ", root->data);
@@ -104,7 +108,8 @@ void preorder(NodePtr root) {
     }
 }
 
-// Postorder: Left -> Right -> Root
+// Postorder Traversal: Left -> Right -> Root
+// Used to delete the tree (free memory) or postfix notation
 void postorder(NodePtr root) {
     if (root != NULL) {
         postorder(root->left);
@@ -114,46 +119,37 @@ void postorder(NodePtr root) {
 }
 
 
-int main() {
-    printf("--- Testing BST Insert Operations ---\n");
-
-    NodePtr root = NULL;
-
-    // Test 1: Insert into empty tree
-    printf("Inserting 50...\n");
-    root = insert(root, 50);
-
-    // Test 2: Insert smaller value (left)
-    printf("Inserting 30...\n");
-    root = insert(root, 30);
-
-    // Test 3: Insert larger value (right)
-    printf("Inserting 70...\n");
-    root = insert(root, 70);
-
-    // Test 4: Insert more values
-    printf("Inserting 20, 40, 60, 80...\n");
-    root = insert(root, 20);
-    root = insert(root, 40);
-    root = insert(root, 60);
-    root = insert(root, 80);
-    root = insert(root, 10);
-    root = insert(root, 5);
-    root = insert(root, 15);
-    root = insert(root, 16);
-
-    printf("Search 16: %d (1)\n", search(root, 16));
-    printf("Search 15: %d (1)\n", search(root, 15));
-    printf("Search 5: %d (1)\n",  search(root, 5));
-    printf("Search 20: %d (1)\n", search(root, 20));
-
-    printf("Deleting 80...\n");
-    root = delNode(root, 80);
-
-    printf("Tree structure (In-order verificaton): ");
-    simple_inorder(root);
+// Recursive helper to display the tree structure
+// 'space' tracks the indentation level
+void displayTree(NodePtr root, int space) {
+    if (root == NULL) {
+        return;
+    }
+    
+    // Increase distance between levels
+    space += 5;
+    
+    // Print right child first (top of display)
+    displayTree(root->right, space);
+    
+    // Print current node with indentation
     printf("\n");
+    for (int i = 5; i < space; i++) {
+        printf(" ");
+    }
+    printf("%d\n", root->data);
+    
+    // Print left child (bottom of display)
+    displayTree(root->left, space);
+}
 
-    printf("Test Complete.\n");
-    return 0;
+// Wrapper function to display the tree clearly
+void display(NodePtr root) {
+    printf("\n=== Tree Structure ===\n");
+    if (root == NULL) {
+        printf("(Empty Tree)\n");
+    } else {
+        displayTree(root, 0);
+    }
+    printf("======================\n");
 }
