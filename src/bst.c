@@ -1,13 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "bst_node.h"
 
 // Create a new node with the given value
 NodePtr createNode(int value) {
-    // Dynamic Memory Allocation using malloc
     NodePtr newNode = (NodePtr)malloc(sizeof(Node));
-    if (newNode == NULL) {
-        printf("Memory allocation failed!\n");
+    if (!newNode) {
+        fprintf(stderr, "Memory allocation failed!\n");
         return NULL;
     }
     newNode->data = value;
@@ -18,65 +18,52 @@ NodePtr createNode(int value) {
 
 // Insert a value into the BST
 NodePtr insert(NodePtr root, int value) {
-    // If tree is empty, return a new node
-    if (root == NULL) {
+    if (!root) {
         return createNode(value);
     }
-
-    // Otherwise, recur down the tree
     if (value < root->data) {
         root->left = insert(root->left, value);
     } else if (value > root->data) {
         root->right = insert(root->right, value);
     }
-    // if value matches root->data, we don't insert duplicate
-
-    // return the (unchanged) node pointer
-    return root;
+    return root; // Return unchanged node pointer
 }
-
 
 // Search for a value in the BST
 bool search(NodePtr root, int value) {
-    if (root == NULL) return false;
+    if (!root) return false;
     if (root->data == value) return true;
-
-    if (value > root->data)
-        return search(root->right, value);
-
-    return search(root->left, value);
+    return (value > root->data) ? search(root->right, value) : search(root->left, value);
 }
 
 // Helper to find minimum value node in a subtree (successor)
 NodePtr getSuccessor(NodePtr curr) {
     curr = curr->right;
-    while (curr && curr->left)
+    while (curr && curr->left) {
         curr = curr->left;
+    }
     return curr;
 }
 
 // Delete a node with the given value
 NodePtr deleteNode(NodePtr root, int value) {
-    if (root == NULL) return root;
+    if (!root) return root;
 
-    if (value < root->data)
+    if (value < root->data) {
         root->left = deleteNode(root->left, value);
-    else if (value > root->data)
+    } else if (value > root->data) {
         root->right = deleteNode(root->right, value);
-    else {
-        // Node with only one child or no child
-        if (root->left == NULL) {
+    } else {
+        if (!root->left) {
             NodePtr temp = root->right;
             free(root);
             return temp;
         }
-        if (root->right == NULL) {
+        if (!root->right) {
             NodePtr temp = root->left;
             free(root);
             return temp;
         }
-
-        // Node with two children: Get the inorder successor (smallest in the right subtree)
         NodePtr succ = getSuccessor(root);
         root->data = succ->data;
         root->right = deleteNode(root->right, succ->data);
@@ -84,14 +71,9 @@ NodePtr deleteNode(NodePtr root, int value) {
     return root;
 }
 
-
-
-
-
 // Inorder Traversal: Left -> Root -> Right
-// Used to retrieve data in sorted order
 void inorder(NodePtr root) {
-    if (root != NULL) {
+    if (root) {
         inorder(root->left);
         printf("%d ", root->data);
         inorder(root->right);
@@ -99,9 +81,8 @@ void inorder(NodePtr root) {
 }
 
 // Preorder Traversal: Root -> Left -> Right
-// Used to create a copy of the tree or prefix notation
 void preorder(NodePtr root) {
-    if (root != NULL) {
+    if (root) {
         printf("%d ", root->data);
         preorder(root->left);
         preorder(root->right);
@@ -109,44 +90,34 @@ void preorder(NodePtr root) {
 }
 
 // Postorder Traversal: Left -> Right -> Root
-// Used to delete the tree (free memory) or postfix notation
 void postorder(NodePtr root) {
-    if (root != NULL) {
+    if (root) {
         postorder(root->left);
         postorder(root->right);
         printf("%d ", root->data);
     }
 }
 
-
 // Recursive helper to display the tree structure
-// 'space' tracks the indentation level
 void displayTree(NodePtr root, int space) {
-    if (root == NULL) {
-        return;
-    }
-    
-    // Increase distance between levels
+    if (!root) return;
+
     space += 5;
-    
-    // Print right child first (top of display)
     displayTree(root->right, space);
     
-    // Print current node with indentation
     printf("\n");
     for (int i = 5; i < space; i++) {
         printf(" ");
     }
     printf("%d\n", root->data);
     
-    // Print left child (bottom of display)
     displayTree(root->left, space);
 }
 
 // Wrapper function to display the tree clearly
 void display(NodePtr root) {
     printf("\n=== Tree Structure ===\n");
-    if (root == NULL) {
+    if (!root) {
         printf("(Empty Tree)\n");
     } else {
         displayTree(root, 0);
@@ -170,10 +141,11 @@ int main() {
         printf("8. Exit\n");
         printf("==============================\n");
         printf("Enter choice: ");
+        
         if (scanf("%d", &choice) != 1) {
-             while(getchar() != '\n'); // Clear input buffer
-             printf("Invalid input. Please enter a number.\n");
-             continue;
+            while (getchar() != '\n'); // Clear input buffer
+            printf("Invalid input. Please enter a number.\n");
+            continue;
         }
 
         switch (choice) {
@@ -190,21 +162,21 @@ int main() {
                 
             case 3:
                 printf("Inorder Traversal: ");
-                if (root == NULL) printf("(Empty)");
+                if (!root) printf("(Empty)");
                 else inorder(root);
                 printf("\n");
                 break;
                 
             case 4:
                 printf("Preorder Traversal: ");
-                if (root == NULL) printf("(Empty)");
+                if (!root) printf("(Empty)");
                 else preorder(root);
                 printf("\n");
                 break;
                 
             case 5:
                 printf("Postorder Traversal: ");
-                if (root == NULL) printf("(Empty)");
+                if (!root) printf("(Empty)");
                 else postorder(root);
                 printf("\n");
                 break;
@@ -228,7 +200,6 @@ int main() {
                 
             case 8:
                 printf("Exiting program. Goodbye!\n");
-                // Free memory would be good here, but OS handles it on exit
                 return 0;
                 
             default:
