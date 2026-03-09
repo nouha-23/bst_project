@@ -1,225 +1,102 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "bst_node.h"
 
-// Create a new node with the given value
-NodePtr createNode(int value) {
-    NodePtr newNode = (NodePtr)malloc(sizeof(Node));
-    if (newNode == NULL) {
-        printf("Memory allocation failed!\n");
-        return NULL;
-    }
-    newNode->data = value;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
+// Get the height of the tree
+int getHeight(NodePtr root) {
+    if (root == NULL) return 0;
+    int leftH  = getHeight(root->left);
+    int rightH = getHeight(root->right);
+    return 1 + (leftH > rightH ? leftH : rightH);
 }
 
-// Insert a value into the BST (duplicates are ignored)
-NodePtr insert(NodePtr root, int value) {
-    if (root == NULL) {
-        return createNode(value);
-    }
-    if (value < root->data) {
-        root->left = insert(root->left, value);
-    } else if (value > root->data) {
-        root->right = insert(root->right, value);
-    }
-    return root;
-}
-
-// Search for a value in the BST
-bool search(NodePtr root, int value) {
-    if (root == NULL) return false;
-    if (root->data == value) return true;
-    if (value > root->data)
-        return search(root->right, value);
-    return search(root->left, value);
-}
-
-// Find the inorder successor (leftmost node in right subtree)
-// Only call this when curr->right is guaranteed non-NULL
-NodePtr getSuccessor(NodePtr curr) {
-    if (curr->right == NULL) return NULL; // safety guard
-    curr = curr->right;
-    while (curr->left != NULL)
-        curr = curr->left;
-    return curr;
-}
-
-// Delete a node with the given value
-NodePtr deleteNode(NodePtr root, int value) {
-    if (root == NULL) return root;
-
-    if (value < root->data) {
-        root->left = deleteNode(root->left, value);
-    } else if (value > root->data) {
-        root->right = deleteNode(root->right, value);
-    } else {
-        // Case 1 & 2: zero or one child
-        if (root->left == NULL) {
-            NodePtr temp = root->right;
-            free(root);
-            return temp;
-        }
-        if (root->right == NULL) {
-            NodePtr temp = root->left;
-            free(root);
-            return temp;
-        }
-        // Case 3: two children — replace with inorder successor
-        NodePtr succ = getSuccessor(root);
-        root->data = succ->data;
-        root->right = deleteNode(root->right, succ->data);
-    }
-    return root;
-}
-
-// Free all nodes in the tree
-void freeTree(NodePtr root) {
-    if (root == NULL) return;
-    freeTree(root->left);
-    freeTree(root->right);
-    free(root);
-}
-
-// Inorder Traversal: Left -> Root -> Right (sorted order)
-void inorder(NodePtr root) {
-    if (root != NULL) {
-        inorder(root->left);
-        printf("%d ", root->data);
-        inorder(root->right);
-    }
-}
-
-// Preorder Traversal: Root -> Left -> Right
-void preorder(NodePtr root) {
-    if (root != NULL) {
-        printf("%d ", root->data);
-        preorder(root->left);
-        preorder(root->right);
-    }
-}
-
-// Postorder Traversal: Left -> Right -> Root
-void postorder(NodePtr root) {
-    if (root != NULL) {
-        postorder(root->left);
-        postorder(root->right);
-        printf("%d ", root->data);
-    }
-}
-
-// Recursive helper to display the tree rotated 90° (right=top, left=bottom)
-// FIX: changed loop start from 'i = 5' to 'i = 0' so indentation is correct
-void displayTree(NodePtr root, int space) {
+// Fill a 2D character buffer with the tree nodes and connectors
+// - row, col     : current position in the buffer
+// - width        : width of the current subtree's column space
+void fillBuffer(NodePtr root, char **buf, int row, int col, int width) {
     if (root == NULL) return;
 
-    space += 5;
+    // Center the node value in the current column space
+    char tmp[16];
+    sprintf(tmp, "%d", root->data);
+    int len    = strlen(tmp);
+    int midCol = col + width / 2;
+    int startCol = midCol - len / 2;
 
-    displayTree(root->right, space);
-
-    printf("\n");
-    for (int i = 0; i < space - 5; i++) { // FIX: was 'i = 5', now 'i = 0'; upper bound adjusted
-        printf(" ");
+    // Write the node value into the buffer
+    for (int i = 0; i < len; i++) {
+        buf[row][startCol + i] = tmp[i];
     }
-    printf("%d\n", root->data);
 
-    displayTree(root->left, space);
+    int half = width / 4;
+
+    // Draw left subtree connector and recurse
+    if (root->left != NULL) {
+        // Draw '/' connector going up-left
+        int connRow = row + 1;
+        int connCol = midCol - 1;
+        while (connCol >= col + half && connRow <= row + 2) {
+            buf[connRow][connCol] = '/';
+            connRow++;
+            connCol--;
+        }
+        fillBuffer(root->left, buf, row + 3, col, width / 2);
+    }
+
+    // Draw right subtree connector and recurse
+    if (root->right != NULL) {
+        // Draw '\' connector going down-right
+        int connRow = row + 1;
+        int connCol = midCol + 1;
+        while (connCol <= col + width - half && connRow <= row + 2) {
+            buf[connRow][connCol] = '\\';
+            connRow++;
+            connCol++;
+        }
+        fillBuffer(root->right, buf, row + 3, col + width / 2, width / 2);
+    }
 }
 
-// Wrapper to display the tree
 void display(NodePtr root) {
-    printf("\n=== Tree Structure (rotated 90°, right is top) ===\n");
+    printf("\n=== Tree Structure ===\n");
+
     if (root == NULL) {
-        printf("(Empty Tree)\n");
-    } else {
-        displayTree(root, 0);
+        printf("       (Empty Tree)\n");
+        printf("======================\n");
+        return;
     }
-    printf("==================================================\n");
-}
 
-int main() {
-    NodePtr root = NULL;
-    int choice, value;
+    int height  = getHeight(root);
+    int rows    = height * 3;          // 3 buffer rows per tree level
+    int cols    = 120;                 // fixed canvas width
 
-    while (1) {
-        printf("\n========== BST Menu ==========\n");
-        printf("1. Insert Node\n");
-        printf("2. Display Tree Structure\n");
-        printf("3. Inorder Traversal\n");
-        printf("4. Preorder Traversal\n");
-        printf("5. Postorder Traversal\n");
-        printf("6. Search for a Value\n");
-        printf("7. Delete a Value\n");
-        printf("8. Exit\n");
-        printf("==============================\n");
-        printf("Enter choice: ");
+    // Allocate 2D character buffer, filled with spaces
+    char **buf = (char **)malloc(rows * sizeof(char *));
+    for (int i = 0; i < rows; i++) {
+        buf[i] = (char *)malloc((cols + 1) * sizeof(char));
+        memset(buf[i], ' ', cols);
+        buf[i][cols] = '\0';
+    }
 
-        if (scanf("%d", &choice) != 1) {
-            while (getchar() != '\n');
-            printf("Invalid input. Please enter a number.\n");
-            continue;
-        }
+    fillBuffer(root, buf, 0, 0, cols);
 
-        switch (choice) {
-            case 1:
-                printf("Enter value to insert: ");
-                scanf("%d", &value);
-                root = insert(root, value);
-                printf("Value %d inserted/checked.\n", value);
-                break;
+    // Print buffer, trimming trailing spaces per line
+    for (int i = 0; i < rows; i++) {
+        int last = 0;
+        for (int j = 0; j < cols; j++)
+            if (buf[i][j] != ' ') last = j;
 
-            case 2:
-                display(root);
-                break;
-
-            case 3:
-                printf("Inorder Traversal: ");
-                if (root == NULL) printf("(Empty)");
-                else inorder(root);
-                printf("\n");
-                break;
-
-            case 4:
-                printf("Preorder Traversal: ");
-                if (root == NULL) printf("(Empty)");
-                else preorder(root);
-                printf("\n");
-                break;
-
-            case 5:
-                printf("Postorder Traversal: ");
-                if (root == NULL) printf("(Empty)");
-                else postorder(root);
-                printf("\n");
-                break;
-
-            case 6:
-                printf("Enter value to search: ");
-                scanf("%d", &value);
-                if (search(root, value))
-                    printf("Value %d found in the tree.\n", value);
-                else
-                    printf("Value %d NOT found.\n", value);
-                break;
-
-            case 7:
-                printf("Enter value to delete: ");
-                scanf("%d", &value);
-                root = deleteNode(root, value);
-                printf("Delete operation for %d completed.\n", value);
-                break;
-
-            case 8:
-                printf("Exiting program. Goodbye!\n");
-                freeTree(root);  // FIX: properly free all memory before exit
-                return 0;
-
-            default:
-                printf("Invalid choice! Please try again.\n");
+        // Only print non-empty lines
+        if (last > 0) {
+            buf[i][last + 1] = '\0';
+            printf("%s\n", buf[i]);
         }
     }
 
-    return 0;
+    // Free buffer
+    for (int i = 0; i < rows; i++) free(buf[i]);
+    free(buf);
+
+    printf("======================\n");
 }
